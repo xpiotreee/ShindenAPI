@@ -22,11 +22,11 @@ class Rating:
 class Info:
     type: str
     status: str
-    start_airing: str
-    end_airing: str
+    start_airing: int
+    end_airing: int
     episode_count: int
     studios: List[str]
-    episode_length: str
+    episode_length: int
     mpaa: str
 
 
@@ -43,7 +43,7 @@ class Stats:
 
 @dataclass
 class AnimeInfo:
-    id: str
+    id: int
     name: str
     other_titles: List[str]
     description: str

@@ -1,9 +1,13 @@
 from aiohttp import ClientSession
+from fastapi import HTTPException
+from datetime import datetime
+from utils.lxml import text, number
 from lxml import etree
 from .classes import *
 
 
-class Paths: 
+class Paths:
+    NOT_FOUND = '/html/body/div/div[2]/p[@class=\'enormous-font bree-font\']'
     PLUS18 = '/html/body/div[@id=\'plus18\']'
     NAME = '/html/body/div[2]/div/h1'
     OTHER_TITLES = '/html/body/div[2]/div/div'
@@ -25,22 +29,24 @@ class Paths:
 
 async def get_anime_info(http: ClientSession, anime_id):
     url = f'https://shinden.pl/series/{anime_id}'
-    print(url)
     async with http.get(url) as res:
-        text = await res.text()
+        html = await res.text()
     
-    root = etree.HTML(text)
-    get = lambda path: root.xpath(path)[0].text
-    number = lambda string: float(string.replace(',', '.'))
+    root = etree.HTML(html)
+
+    not_found = root.xpath(Paths.NOT_FOUND)
+    if not_found:
+        raise HTTPException(status_code=404, detail='Anime not found')
     
-    plus18 = root.xpath(Paths.PLUS18)[0]
+    plus18 = root.xpath(Paths.PLUS18)
     if plus18:
+        plus18 = plus18[0]
         plus18.getparent().remove(plus18)
 
-    name = get(Paths.NAME)[len('Anime: '):]
-    other_titles = get(Paths.OTHER_TITLES).split(',')
+    name = text(root, Paths.NAME)[len('Anime: '):]
+    other_titles = text(root, Paths.OTHER_TITLES).split(',')
     other_titles = [x.strip() for x in other_titles if x.strip()]
-    description = get(Paths.DESCRIPTION)
+    description = text(root, Paths.DESCRIPTION)
     img_path = root.xpath(Paths.IMG)[0].attrib['href']
 
     tags = []
@@ -53,12 +59,12 @@ async def get_anime_info(http: ClientSession, anime_id):
         ))
     
     rating = Rating(
-        total=number(get(Paths.TOTAL_RATING)),
-        count=int(get(Paths.RATING_COUNT)[:-len(' głosów')]),
-        plot=number(get(Paths.PLOT_RATING)),
-        graphics=number(get(Paths.GRAPHICS_RATING)),
-        music=number(get(Paths.MUSIC_RATING)),
-        characters=number(get(Paths.CHARACTERS_RATING))
+        total=number(text(root, Paths.TOTAL_RATING)),
+        count=int(text(root, Paths.RATING_COUNT)[:-len(' głosów')]),
+        plot=number(text(root, Paths.PLOT_RATING)),
+        graphics=number(text(root, Paths.GRAPHICS_RATING)),
+        music=number(text(root, Paths.MUSIC_RATING)),
+        characters=number(text(root, Paths.CHARACTERS_RATING))
     )
 
     info_elements = root.xpath(Paths.INFO)
@@ -66,11 +72,11 @@ async def get_anime_info(http: ClientSession, anime_id):
     info = Info(
         type=f'{info_elements[0]}',
         status=f'{info_elements[1]}',
-        start_airing=f'{info_elements[2]}',
-        end_airing=f'{info_elements[3]}',
+        start_airing=datetime.strptime(f'{info_elements[2]}', '%d.%m.%Y').timestamp() * 1000,
+        end_airing=datetime.strptime(f'{info_elements[3]}', '%d.%m.%Y').timestamp() * 1000,
         episode_count=int(f'{info_elements[4]}'),
         studios=[studio.text for studio in studios_elements],
-        episode_length=f'{info_elements[-2]}',
+        episode_length=int(f'{info_elements[-2]}'[:-len('min')]),
         mpaa=f'{info_elements[-1]}',
     )
 
