@@ -1,6 +1,8 @@
 from aiohttp import ClientSession
 from . import anime_info
 from . import search
+from . import episodes
+from . import players
 
 class Shinden():
     def __init__(self):
@@ -16,6 +18,12 @@ class Shinden():
     
     async def get_anime_info(self, anime_id):
         return await anime_info.get_anime_info(self._http, anime_id)
+    
+    async def get_episodes(self, anime_id):
+        return await episodes.get_episodes(self._http, anime_id)
+    
+    async def get_players(self, episode_id):
+        return await players.get_players(self._http, episode_id)
     
     async def search(self, query, page=1):
         return await search.search(self._http, query, page)
