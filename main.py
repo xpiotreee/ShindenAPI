@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import FastAPI
 from shinden import Shinden
 from shinden.anime_info.classes import AnimeInfo
-from shinden.players.classes import Player
+from shinden.players.classes import ShindenPlayer
 from shinden.search.classes import SearchResult
 from shinden.episodes.classes import Episode
 from typing import List, Optional
@@ -31,9 +31,14 @@ async def episodes(anime_id: int):
     return await shinden.get_episodes(anime_id)
 
 
-@app.get('/players/{episode_id}', response_model=List[Player])
-async def episodes(episode_id: int):
+@app.get('/players/{episode_id}', response_model=List[ShindenPlayer])
+async def players(episode_id: int):
     return await shinden.get_players(episode_id)
+
+
+@app.get('/player/{player_id}', response_model=str)
+async def player(player_id: int):
+    return await shinden.get_player(player_id)
 
 
 @app.get('/search/', response_model=List[SearchResult])

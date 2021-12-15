@@ -1,4 +1,5 @@
 from aiohttp import ClientSession
+from lxml import etree
 from . import anime_info
 from . import search
 from . import episodes
@@ -7,6 +8,7 @@ from . import players
 class Shinden():
     def __init__(self):
         self._http = None
+        self.api_auth = ''
     
     async def init(self):
         self._http = ClientSession(
@@ -15,6 +17,18 @@ class Shinden():
                 'Accept-Language': 'pl,en-US;q=0.9,en;q=0.8'
             }
         )
+
+        async with self._http.get(f'https://shinden.pl/') as res:
+            html = await res.text()
+        
+        root = etree.HTML(html)
+        script = root.xpath('//script[contains(text(),\'var safe = true;\')]/text()')[0]
+        script = f'{script}'
+        for line in script.split('\n'):
+            if '_Storage.basic =' not in line:
+                continue
+
+            self.api_auth = line[line.find('\'') + 1:line.rfind('\'')]
     
     async def get_anime_info(self, anime_id):
         return await anime_info.get_anime_info(self._http, anime_id)
@@ -24,6 +38,9 @@ class Shinden():
     
     async def get_players(self, episode_id):
         return await players.get_players(self._http, episode_id)
+    
+    async def get_player(self, player_id):
+        return await players.get_player(self, player_id)
     
     async def search(self, query, page=1):
         return await search.search(self._http, query, page)

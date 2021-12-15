@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Player:
+class ShindenPlayer:
     player: str
     quality: str
     audio: str

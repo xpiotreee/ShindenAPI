@@ -68,7 +68,6 @@ async def search(http: ClientSession, query, page=1):
 
         thumbnail = element.xpath(Paths.THUMBNAIL)[0]
         if thumbnail.attrib['href'] == 'javascript:void(0)':
-            print(thumbnail.attrib['style'])
             thumbnail_path = thumbnail.attrib['style'][len('background-image: url('):-len(')')]
         else:
             thumbnail_path = thumbnail.attrib['href']

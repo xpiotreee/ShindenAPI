@@ -2,6 +2,7 @@ from aiohttp import ClientSession
 from datetime import datetime
 from lxml import etree
 from .classes import *
+import asyncio
 import json
 
 class Paths:
@@ -24,14 +25,13 @@ async def get_players(http: ClientSession, episode_id):
     elements = root.xpath(Paths.ELEMENTS)
 
     for element in elements:
-        # info = json.loads(element.attrib['data-episode'])
         info = element.attrib.get('data-episode', None)
         if info is None:
             continue
 
         info = json.loads(info)
         players.append(
-            Player(
+            ShindenPlayer(
                 player=info['player'],
                 quality=info['max_res'],
                 audio=info['lang_audio'],
@@ -42,4 +42,24 @@ async def get_players(http: ClientSession, episode_id):
         )
     
     return players
+
+async def get_player(shinden, player_id):
+    async with shinden._http.get(f'https://api4.shinden.pl/xhr/{player_id}/player_load',
+        params={
+            'auth': shinden.api_auth
+        }
+    ) as res:
+        time = int(await res.text())
     
+    await asyncio.sleep(time)
+
+    async with shinden._http.get(f'https://api4.shinden.pl/xhr/{player_id}/player_show',
+        params={
+            'auth': shinden.api_auth
+        }    
+    ) as res:
+        html = await res.text()
+    
+    for line in html.split('\n'):
+        if 'iframe' in line:
+            return line
