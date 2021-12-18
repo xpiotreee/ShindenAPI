@@ -1,7 +1,7 @@
 from aiohttp import ClientSession
 from lxml import etree
 from . import anime_info
-from . import search
+from . import series
 from . import episodes
 from . import players
 
@@ -42,5 +42,5 @@ class Shinden():
     async def get_player(self, player_id):
         return await players.get_player(self, player_id)
     
-    async def search(self, query, page=1):
-        return await search.search(self._http, query, page)
+    async def series(self, query, page=1):
+        return await series.series(self._http, query, page)

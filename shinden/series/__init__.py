@@ -21,10 +21,10 @@ class Paths:
     THUMBNAIL = './/li[@class=\'cover-col\']/a'
 
 
-async def search(http: ClientSession, query, page=1):
-    params = {
-        'search': query
-    }
+async def series(http: ClientSession, query, page=1):
+    params = {}
+    if query:
+        params['search'] = query
 
     if page > 1:
         params['page'] = page

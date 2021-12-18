@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from shinden import Shinden
 from shinden.anime_info.classes import AnimeInfo
 from shinden.players.classes import ShindenPlayer
-from shinden.search.classes import SearchResult
+from shinden.series.classes import SearchResult
 from shinden.episodes.classes import Episode
 from typing import List, Optional
 
@@ -51,6 +51,6 @@ async def player(player_id: int):
     return Response(content=iframe_str, media_type='text/html; charset=utf-8')
 
 
-@app.get('/search/', response_model=List[SearchResult])
-async def search(q: str, page: Optional[int] = 1):
-    return await shinden.search(q, page)
+@app.get('/series/', response_model=List[SearchResult])
+async def search(q: Optional[str] = None, page: Optional[int] = 1):
+    return await shinden.series(q, page)
