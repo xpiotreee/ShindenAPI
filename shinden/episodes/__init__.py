@@ -7,7 +7,7 @@ from .classes import *
 
 class Paths:
     PLUS18 = '/html/body/div[@id=\'plus18\']'
-    LIST = '/html/body/div[2]/div/article/section[2]/div[2]/table/tbody/tr'
+    LIST = '//tbody[1]/tr'
     INDEX = './/td[1]'
     TITLE = './/td[@class=\'ep-title\']'
     ONLINE = './/td/i[@class=\'fa fa-fw fa-check\']'

@@ -37,7 +37,7 @@ async def get_players(http: ClientSession, episode_id):
                 audio=info['lang_audio'],
                 subs=info['lang_subs'],
                 upload_date=int(datetime.strptime(info['added'], '%Y-%m-%d %H:%M:%S').timestamp() * 1000),
-                player_id=int(info['online_id'])
+                id=int(info['online_id'])
             )
         )
     
@@ -59,7 +59,7 @@ async def get_player(shinden, player_id):
         }    
     ) as res:
         html = await res.text()
-    
+
     for line in html.split('\n'):
         if 'iframe' in line:
             return line

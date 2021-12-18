@@ -8,4 +8,4 @@ class ShindenPlayer:
     audio: str
     subs: str
     upload_date: int
-    player_id: int
+    id: int

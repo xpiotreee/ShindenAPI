@@ -1,7 +1,7 @@
 from aiohttp import ClientSession
 from fastapi import HTTPException
 from datetime import datetime
-from utils.lxml import text, number
+from utils.lxml import text, number, text_builder
 from lxml import etree
 from .classes import *
 
@@ -22,7 +22,7 @@ class Paths:
     GRAPHICS_RATING = '/html/body/div[2]/div/aside/section[3]/ul/li[2]'
     MUSIC_RATING = '/html/body/div[2]/div/aside/section[3]/ul/li[3]'
     CHARACTERS_RATING = '/html/body/div[2]/div/aside/section[3]/ul/li[4]'
-    INFO = '/html/body/div[2]/div/aside/section[4]/dl/dd/text()'
+    INFO_LIST = '//section[@class=\'title-small-info\']//dl[@class=\'info-aside-list\']'
     STUDIOS = '/html/body/div[2]/div/aside/section[4]/dl/dd/a'
     STATS = '/html/body/div[2]/div/aside/section[5]/dl/dd/text()'
 
@@ -46,7 +46,7 @@ async def get_anime_info(http: ClientSession, anime_id):
     name = text(root, Paths.NAME)[len('Anime: '):]
     other_titles = text(root, Paths.OTHER_TITLES).split(',')
     other_titles = [x.strip() for x in other_titles if x.strip()]
-    description = text(root, Paths.DESCRIPTION)
+    description = text_builder(root.xpath(Paths.DESCRIPTION)[0])
     img_path = root.xpath(Paths.IMG)[0].attrib['href']
 
     tags = []
@@ -67,17 +67,27 @@ async def get_anime_info(http: ClientSession, anime_id):
         characters=number(text(root, Paths.CHARACTERS_RATING))
     )
 
-    info_elements = root.xpath(Paths.INFO)
-    studios_elements = root.xpath(Paths.STUDIOS)
+    info_elements = {}
+    info_iter = iter(list(root.xpath(Paths.INFO_LIST)[0])) 
+    for key in info_iter:
+        info_elements[key.text.lower()[:-1]] = next(info_iter)
+
+    def test(key, callback, default=''):
+        element = info_elements.get(key, None)
+        if element is not None and len(element):
+            return callback(element)
+
+        return default
+
     info = Info(
-        type=f'{info_elements[0]}',
-        status=f'{info_elements[1]}',
-        start_airing=datetime.strptime(f'{info_elements[2]}', '%d.%m.%Y').timestamp() * 1000,
-        end_airing=datetime.strptime(f'{info_elements[3]}', '%d.%m.%Y').timestamp() * 1000,
-        episode_count=int(f'{info_elements[4]}'),
-        studios=[studio.text for studio in studios_elements],
-        episode_length=int(f'{info_elements[-2]}'[:-len('min')]),
-        mpaa=f'{info_elements[-1]}',
+        type=test('typ', lambda o: f'{o}'),
+        status=test('status', lambda o: f'{o}'),
+        start_airing=test('data emisji', lambda o: datetime.strptime(f'{o}', '%d.%m.%Y').timestamp(), 0) * 1000,
+        end_airing=test('koniec emisji', lambda o: datetime.strptime(f'{o}', '%d.%m.%Y').timestamp(), 0) * 1000,
+        episode_count=test('liczba odcinków', lambda o: int(f'{o}'), 0),
+        studios=test('studio', lambda o: [studio.text for studio in o.xpath('.//a')], []),
+        episode_length=test('długość odcinka', lambda o: int(f'{o}'[:-len('min')]), 0),
+        mpaa=test('mpaa', lambda o: f'{o}'),
     )
 
     stats_elements = root.xpath(Paths.STATS)

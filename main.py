@@ -1,5 +1,6 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from shinden import Shinden
 from shinden.anime_info.classes import AnimeInfo
 from shinden.players.classes import ShindenPlayer
@@ -10,6 +11,14 @@ from typing import List, Optional
 
 app = FastAPI()
 shinden = Shinden()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event('startup')
 async def startup_event():
@@ -38,7 +47,8 @@ async def players(episode_id: int):
 
 @app.get('/player/{player_id}', response_model=str)
 async def player(player_id: int):
-    return await shinden.get_player(player_id)
+    iframe_str = await shinden.get_player(player_id)
+    return Response(content=iframe_str, media_type='text/html; charset=utf-8')
 
 
 @app.get('/search/', response_model=List[SearchResult])
