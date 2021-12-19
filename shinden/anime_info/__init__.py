@@ -74,20 +74,20 @@ async def get_anime_info(http: ClientSession, anime_id):
 
     def test(key, callback, default=''):
         element = info_elements.get(key, None)
-        if element is not None and len(element):
+        if element is not None:
             return callback(element)
 
         return default
 
     info = Info(
-        type=test('typ', lambda o: f'{o}'),
-        status=test('status', lambda o: f'{o}'),
-        start_airing=test('data emisji', lambda o: datetime.strptime(f'{o}', '%d.%m.%Y').timestamp(), 0) * 1000,
-        end_airing=test('koniec emisji', lambda o: datetime.strptime(f'{o}', '%d.%m.%Y').timestamp(), 0) * 1000,
-        episode_count=test('liczba odcinków', lambda o: int(f'{o}'), 0),
+        type=test('typ', lambda o: o.text),
+        status=test('status', lambda o: o.text),
+        start_airing=test('data emisji', lambda o: datetime.strptime(o.text, '%d.%m.%Y').timestamp(), 0) * 1000,
+        end_airing=test('koniec emisji', lambda o: datetime.strptime(o.text, '%d.%m.%Y').timestamp(), 0) * 1000,
+        episode_count=test('liczba odcinków', lambda o: int(o.text), 0),
         studios=test('studio', lambda o: [studio.text for studio in o.xpath('.//a')], []),
-        episode_length=test('długość odcinka', lambda o: int(f'{o}'[:-len('min')]), 0),
-        mpaa=test('mpaa', lambda o: f'{o}'),
+        episode_length=test('długość odcinka', lambda o: int(o.text[:-len('min')]), 0),
+        mpaa=test('mpaa', lambda o: o.text),
     )
 
     stats_elements = root.xpath(Paths.STATS)
