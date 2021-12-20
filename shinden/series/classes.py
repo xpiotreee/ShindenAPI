@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 
 @dataclass
@@ -21,4 +21,4 @@ class SearchResult:
     status: str
     tags: List[str]
     thumbnail_url: str
-    rating: Optional[SearchResultRating] = None
+    rating: SearchResultRating

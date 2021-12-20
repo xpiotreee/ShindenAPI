@@ -46,7 +46,11 @@ async def get_anime_info(http: ClientSession, anime_id):
     name = text(root, Paths.NAME)[len('Anime: '):]
     other_titles = text(root, Paths.OTHER_TITLES).split(',')
     other_titles = [x.strip() for x in other_titles if x.strip()]
-    description = text_builder(root.xpath(Paths.DESCRIPTION)[0])
+    description = root.xpath(Paths.DESCRIPTION)
+    if description:
+        description = text_builder(description[0])
+    else:
+        description = ''
     img_path = root.xpath(Paths.IMG)[0].attrib['href']
 
     tags = []

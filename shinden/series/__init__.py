@@ -64,7 +64,7 @@ async def series(http: ClientSession, query, page=1):
                 top=number(element.xpath(Paths.RATING_TOP))
             )
         else:
-            rating = None
+            rating = SearchResultRating(total=0, plot=0, graphics=0, music=0, characters=0, top=0)
 
         thumbnail = element.xpath(Paths.THUMBNAIL)[0]
         if thumbnail.attrib['href'] == 'javascript:void(0)':
