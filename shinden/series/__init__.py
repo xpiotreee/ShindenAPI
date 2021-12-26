@@ -1,5 +1,6 @@
 from aiohttp import ClientSession
 from utils.lxml import text, number, text_builder
+from ..classes import Tag
 from lxml import etree
 from .classes import *
 
@@ -31,9 +32,6 @@ async def series(http: ClientSession, query, page=1):
 
     async with http.get('https://shinden.pl/series', params=params) as res:
         html = await res.text()
-        f = open('debug.html', 'w')
-        f.write(html)
-        f.close()
     
     root = etree.HTML(html)
     results = []
@@ -51,7 +49,7 @@ async def series(http: ClientSession, query, page=1):
             episodes_count = 0
 
         status = text(element, Paths.STATUS)
-        tags = [tag.text for tag in element.xpath(Paths.TAGS)]
+        tags = [tag.attrib['data-tag-id'][1:] for tag in element.xpath(Paths.TAGS)]
 
         rating_element = element.xpath(Paths.RATING_ELEMENT)[0]
         if list(rating_element):            

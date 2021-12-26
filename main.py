@@ -1,12 +1,8 @@
-from typing import Optional
-from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Response
+from typing import Dict, List, Optional
+from shinden.classes import *
 from shinden import Shinden
-from shinden.anime_info.classes import AnimeInfo
-from shinden.players.classes import ShindenPlayer
-from shinden.series.classes import SearchResult
-from shinden.episodes.classes import Episode
-from typing import List, Optional
 
 
 app = FastAPI()
@@ -54,3 +50,8 @@ async def player(player_id: int):
 @app.get('/series/', response_model=List[SearchResult])
 async def search(q: Optional[str] = None, page: Optional[int] = 1):
     return await shinden.series(q, page)
+
+
+@app.get('/tags.json', response_model=Dict[str, Tag])
+def tags():
+    return Response(content=shinden.tags, media_type='application/json; charset=utf-8')

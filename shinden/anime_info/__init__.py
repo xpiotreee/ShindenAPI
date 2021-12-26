@@ -13,9 +13,7 @@ class Paths:
     OTHER_TITLES = '/html/body/div[2]/div/div'
     DESCRIPTION = '/html/body/div[2]/div/article/section[1]/div/p'
     IMG = '/html/body/div[2]/div/aside/section[1]/a'
-    TAGS_GROUPS = '/html/body/div[2]/div/article/section[1]/table/tbody/tr'
-    TAG_GROUP_NAME = './/td'
-    TAGS = '/html/body/div[2]/div/article/section[1]/table/tbody/tr[{group_index}]/td/ul/li/a'
+    TAGS = '//a[@data-id]'
     TOTAL_RATING = '/html/body/div[2]/div/aside/section[3]/section/div/div/h3/span'
     RATING_COUNT = '/html/body/div[2]/div/aside/section[3]/section/div/div/span'
     PLOT_RATING = '/html/body/div[2]/div/aside/section[3]/ul/li[1]'
@@ -53,14 +51,15 @@ async def get_anime_info(http: ClientSession, anime_id):
         description = ''
     img_path = root.xpath(Paths.IMG)[0].attrib['href']
 
-    tags = []
-    for (i, element) in enumerate(root.xpath(Paths.TAGS_GROUPS)):
-        tags_path = Paths.TAGS.format(group_index=i+1)
-        tags_elements = element.xpath(tags_path)
-        tags.append(TagsGroup(
-            name=element.xpath(Paths.TAG_GROUP_NAME)[0].text[:-len(':')],
-            tags=[tag.text for tag in tags_elements]
-        ))
+    tags = [tag.attrib['data-id'] for tag in root.xpath(Paths.TAGS)]
+    # for (i, element) in enumerate(root.xpath(Paths.TAGS_GROUPS)):
+    #     tags_path = Paths.TAGS.format(group_index=i+1)
+    #     tags_elements = element.xpath(tags_path)
+        
+        # tags.append(TagsGroup(
+        #     name=element.xpath(Paths.TAG_GROUP_NAME)[0].text[:-len(':')],
+        #     tags=[Tag(name=tag.text, description=tag.attrib.get('title', '')) for tag in tags_elements]
+        # ))
     
     rating = Rating(
         total=number(text(root, Paths.TOTAL_RATING)),
@@ -105,7 +104,7 @@ async def get_anime_info(http: ClientSession, anime_id):
         other_titles=other_titles,
         description=description,
         image_url=f'https://shinden.pl{img_path}',
-        tags_groups=tags,
+        tags=tags,
         rating=rating,
         info=info,
         stats=stats

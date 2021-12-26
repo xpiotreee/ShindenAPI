@@ -1,3 +1,4 @@
+import json
 from aiohttp import ClientSession
 from lxml import etree
 from . import anime_info
@@ -9,6 +10,7 @@ class Shinden():
     def __init__(self):
         self._http = None
         self.api_auth = ''
+        self.tags = ''
     
     async def init(self):
         self._http = ClientSession(
@@ -29,6 +31,10 @@ class Shinden():
                 continue
 
             self.api_auth = line[line.find('\'') + 1:line.rfind('\'')]
+        
+        f = open('tags.json', 'r')
+        self.tags = f.read()
+        f.close()
     
     async def get_anime_info(self, anime_id):
         return await anime_info.get_anime_info(self._http, anime_id)

@@ -1,11 +1,5 @@
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass 
 from typing import List
-
-
-@dataclass
-class TagsGroup:
-    name: str
-    tags: List[str]
 
 
 @dataclass
@@ -16,7 +10,7 @@ class Rating:
     graphics: float
     music: float
     characters: float
-    
+
 
 @dataclass
 class Info:
@@ -48,7 +42,7 @@ class AnimeInfo:
     other_titles: List[str]
     description: str
     image_url: str
-    tags_groups: List[TagsGroup]
+    tags: List[str]
     rating: Rating
     info: Info
     stats: Stats
