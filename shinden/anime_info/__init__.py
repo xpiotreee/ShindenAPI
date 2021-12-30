@@ -78,7 +78,10 @@ async def get_anime_info(http: ClientSession, anime_id):
     def test(key, callback, default=''):
         element = info_elements.get(key, None)
         if element is not None:
-            return callback(element)
+            try:
+                return callback(element)
+            except:
+                return default
 
         return default
 

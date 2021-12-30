@@ -47,9 +47,9 @@ async def player(player_id: int):
     return Response(content=iframe_str, media_type='text/html; charset=utf-8')
 
 
-@app.get('/series/', response_model=List[SearchResult])
-async def search(q: Optional[str] = None, page: Optional[int] = 1):
-    return await shinden.series(q, page)
+@app.get('/series/', response_model=SearchResponse)
+async def search(search: Optional[str] = None, page: Optional[int] = 1):
+    return await shinden.series(search, page)
 
 
 @app.get('/tags.json', response_model=Dict[str, Tag])

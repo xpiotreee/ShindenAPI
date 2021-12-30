@@ -22,3 +22,10 @@ class SearchResult:
     tags: List[str]
     thumbnail_url: str
     rating: SearchResultRating
+
+
+@dataclass
+class SearchResponse:
+    page: int
+    max_page: int
+    results: List[SearchResult]

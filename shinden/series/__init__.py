@@ -6,6 +6,8 @@ from .classes import *
 
 
 class Paths:
+    LAST = '//a[@rel=\'last\']'
+    PAGE = '//nav[@class=\'pagination\']/ul/li/strong'
     SEARCH_RESULTS = '/html/body/div[2]/div/section[2]/section/article/ul[@class=\'div-row\']'
     NAME = './/li[@class=\'desc-col\']/h3/a'
     TAGS = './/li[@class=\'desc-col\']/ul/li/a'
@@ -22,10 +24,10 @@ class Paths:
     THUMBNAIL = './/li[@class=\'cover-col\']/a'
 
 
-async def series(http: ClientSession, query, page=1):
+async def series(http: ClientSession, search, page):
     params = {}
-    if query:
-        params['search'] = query
+    if search:
+        params['search'] = search
 
     if page > 1:
         params['page'] = page
@@ -84,4 +86,20 @@ async def series(http: ClientSession, query, page=1):
             )
         )
 
-    return results
+    page = root.xpath(Paths.PAGE)
+    if page:
+        page = int(root.xpath(Paths.PAGE)[0].text)
+    else:
+        page = 1
+    
+    max_page = root.xpath(Paths.LAST)
+    if max_page:
+        max_page = int(max_page[0].attrib['href'].split('=')[-1])
+    else:
+        max_page = 1
+
+    return SearchResponse(
+        page=page,
+        max_page=max_page,
+        results=results
+    )

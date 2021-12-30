@@ -48,5 +48,5 @@ class Shinden():
     async def get_player(self, player_id):
         return await players.get_player(self, player_id)
     
-    async def series(self, query, page=1):
-        return await series.series(self._http, query, page)
+    async def series(self, search, page):
+        return await series.series(self._http, search, page)
