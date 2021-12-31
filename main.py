@@ -48,8 +48,8 @@ async def player(player_id: int):
 
 
 @app.get('/series/', response_model=SearchResponse)
-async def search(search: Optional[str] = None, page: Optional[int] = 1):
-    return await shinden.series(search, page)
+async def search(search: Optional[str] = None, page: Optional[int] = 1, genres: Optional[str] = None, sort_by: Optional[str] = None, sort_order: Optional[str] = None):
+    return await shinden.series(search, page, genres, sort_by, sort_order)
 
 
 @app.get('/tags.json', response_model=Dict[str, Tag])

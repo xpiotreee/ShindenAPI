@@ -6,7 +6,8 @@ from .classes import *
 
 
 class Paths:
-    LAST = '//a[@rel=\'last\']'
+    # LAST = '//a[@rel=\'last\']'
+    LAST = '//li[normalize-space()=\'Ostatnia\']'
     PAGE = '//nav[@class=\'pagination\']/ul/li/strong'
     SEARCH_RESULTS = '/html/body/div[2]/div/section[2]/section/article/ul[@class=\'div-row\']'
     NAME = './/li[@class=\'desc-col\']/h3/a'
@@ -24,13 +25,22 @@ class Paths:
     THUMBNAIL = './/li[@class=\'cover-col\']/a'
 
 
-async def series(http: ClientSession, search, page):
+async def series(http: ClientSession, search, page, genres, sort_by, sort_order):
     params = {}
     if search:
         params['search'] = search
 
     if page > 1:
         params['page'] = page
+    
+    if genres:
+        params['genres'] = genres
+    
+    if sort_by:
+        params['sort_by'] = sort_by
+    
+    if sort_order:
+        params['sort_order'] = sort_order
 
     async with http.get('https://shinden.pl/series', params=params) as res:
         html = await res.text()
@@ -94,7 +104,14 @@ async def series(http: ClientSession, search, page):
     
     max_page = root.xpath(Paths.LAST)
     if max_page:
-        max_page = int(max_page[0].attrib['href'].split('=')[-1])
+        max_page = max_page[0].xpath('./a')
+        if max_page:
+            print(max_page[0].attrib['href'])
+            for param in max_page[0].attrib['href'][len('/series?'):].split('&'):
+                if param.startswith('page='):
+                    max_page = int(param[len('page='):])
+        else:
+            max_page = page
     else:
         max_page = 1
 
