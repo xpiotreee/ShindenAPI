@@ -26,13 +26,13 @@ class Info:
 
 @dataclass
 class Stats:
-    watching: int
-    watched: int
-    skipped: int
-    paused: int
-    dropped: int
-    planning: int
-    liked: int
+    watching: int = 0
+    watched: int = 0
+    skipped: int = 0
+    paused: int = 0
+    dropped: int = 0
+    planning: int = 0
+    liked: int = 0
 
 
 @dataclass

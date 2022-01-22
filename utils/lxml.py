@@ -1,9 +1,9 @@
-def text(root, path):
+def text(root, path, default=''):
     element = root.xpath(path)
     if element:
         return element[0].text
     else:
-        return ''
+        return default
 
 def text_builder(element):    
     elements = element.xpath('.//child::text()')

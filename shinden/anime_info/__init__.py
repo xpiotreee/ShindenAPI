@@ -52,22 +52,14 @@ async def get_anime_info(http: ClientSession, anime_id):
     img_path = root.xpath(Paths.IMG)[0].attrib['href']
 
     tags = [tag.attrib['data-id'] for tag in root.xpath(Paths.TAGS)]
-    # for (i, element) in enumerate(root.xpath(Paths.TAGS_GROUPS)):
-    #     tags_path = Paths.TAGS.format(group_index=i+1)
-    #     tags_elements = element.xpath(tags_path)
-        
-        # tags.append(TagsGroup(
-        #     name=element.xpath(Paths.TAG_GROUP_NAME)[0].text[:-len(':')],
-        #     tags=[Tag(name=tag.text, description=tag.attrib.get('title', '')) for tag in tags_elements]
-        # ))
     
     rating = Rating(
-        total=number(text(root, Paths.TOTAL_RATING)),
-        count=int(text(root, Paths.RATING_COUNT)[:-len(' głosów')]),
-        plot=number(text(root, Paths.PLOT_RATING)),
-        graphics=number(text(root, Paths.GRAPHICS_RATING)),
-        music=number(text(root, Paths.MUSIC_RATING)),
-        characters=number(text(root, Paths.CHARACTERS_RATING))
+        total=number(text(root, Paths.TOTAL_RATING, '0')),
+        count=int(text(root, Paths.RATING_COUNT, '0 głosów')[:-len(' głosów')]),
+        plot=number(text(root, Paths.PLOT_RATING, '0')),
+        graphics=number(text(root, Paths.GRAPHICS_RATING, '0')),
+        music=number(text(root, Paths.MUSIC_RATING, '0')),
+        characters=number(text(root, Paths.CHARACTERS_RATING, '0'))
     )
 
     info_elements = {}

@@ -6,7 +6,6 @@ from .classes import *
 
 
 class Paths:
-    # LAST = '//a[@rel=\'last\']'
     LAST = '//li[normalize-space()=\'Ostatnia\']'
     PAGE = '//nav[@class=\'pagination\']/ul/li/strong'
     SEARCH_RESULTS = '/html/body/div[2]/div/section[2]/section/article/ul[@class=\'div-row\']'
@@ -106,7 +105,6 @@ async def series(http: ClientSession, search, page, genres, sort_by, sort_order)
     if max_page:
         max_page = max_page[0].xpath('./a')
         if max_page:
-            print(max_page[0].attrib['href'])
             for param in max_page[0].attrib['href'][len('/series?'):].split('&'):
                 if param.startswith('page='):
                     max_page = int(param[len('page='):])
